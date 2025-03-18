@@ -1,0 +1,7 @@
+/.idea/
+
+/cmake-*
+/fetch
+/lib/*
+
+!CMakeLists.txt
