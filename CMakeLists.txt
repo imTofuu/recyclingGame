@@ -8,6 +8,14 @@ add_subdirectory(lib)
 
 add_executable(recyclingGame
         src/main.cpp
+        src/Windowing/Window.cpp
+        src/Windowing/Window.h
+        src/Game.h
+        src/Game.cpp
+        src/Logger.cpp
+        src/Logger.h
+        src/Windowing/Renderer.cpp
+        src/Windowing/Renderer.h
 )
 
 target_link_libraries(recyclingGame PRIVATE
