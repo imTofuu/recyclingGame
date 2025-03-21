@@ -36,7 +36,15 @@ FetchContent_Declare(
         
         SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/boo
 )
+FetchContent_Declare(
+        fastobj
+        GIT_REPOSITORY https://github.com/thisistherk/fast_obj.git
+        GIT_TAG        master
+        GIT_SHALLOW    TRUE
+        
+        SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/fast_obj
+)
 
-FetchContent_MakeAvailable(glad_fetch glfw glm boo)
+FetchContent_MakeAvailable(glad_fetch glfw glm boo fastobj)
 
 glad_add_library(glad STATIC API gl:core=4.1 LOCATION ${PROJECT_SOURCE_DIR}/lib/glad)

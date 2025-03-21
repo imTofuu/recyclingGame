@@ -1,6 +1,13 @@
 #include "Game.h"
 
+#include <iostream>
+
 #include "Logger.h"
+#include "Graphics/Mesh.h"
+#include "Graphics/Shader.h"
+#include "Graphics/ShaderProgram.h"
+#include "Graphics/VertexArray.h"
+#include "Graphics/VertexBuffer.h"
 
 namespace RecyclingGame {
 
@@ -18,7 +25,8 @@ namespace RecyclingGame {
                     std::string(description)
                     ).c_str());
         });
-        
+
+        // Init GLFW, windowing library
         glfwInit();
 
         // These hints tell GLFW about the target environment for this code which
@@ -43,9 +51,39 @@ namespace RecyclingGame {
         // leak)
         m_window = &window;
 
+        // Set the clear colour to black to be used when glClear is called
+        glClearColor(0, 0, 0, 1);
+
         // This is the main loop of the game.
         while (window.isOpen()) {
 
+            // Clear the back buffer
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            float testSquareVerticies[] = {
+                -0.5f, -0.5f, 0,
+                0.5f, -0.5f, 0,
+                0.5f, 0.5f, 0,
+                0.5f, 0.5f, 0,
+                -0.5f, 0.5f, 0,
+                -0.5f, -0.5f, 0,
+            };
+
+            VertexBuffer vertexBuffer(testSquareVerticies, sizeof(testSquareVerticies));
+
+            VertexArray vertexArray;
+            vertexArray.setBuffer(0, vertexBuffer, { BufferLayout::ElementType::FLOAT3 });
+
+            Shader vertShader("./../assets/Shaders/main.vert", Shader::ShaderType::VERT);
+            Shader fragShader("./../assets/Shaders/main.frag", Shader::ShaderType::FRAG);
+
+            ShaderProgram shaderProgram;
+            shaderProgram.addShader(vertShader);
+            shaderProgram.addShader(fragShader);
+            shaderProgram.use();
+
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            
             glfwPollEvents();
             window.update();
         }
