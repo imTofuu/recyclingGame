@@ -4,18 +4,23 @@
 
 namespace RecyclingGame {
 
+    // Generate a handle for a vertex array
     VertexArray::VertexArray() {
         glGenVertexArrays(1, &m_handle);
     }
 
+    // Mark the vertex array for deletion
     VertexArray::~VertexArray() {
         glDeleteVertexArrays(1, &m_handle);
     }
 
+    // Bind the vertex array so operations will be performed on it
     void VertexArray::bind() {
         glBindVertexArray(m_handle);
     }
 
+    // Set and enable the vertex buffer at index for the vertex array using data from the helper functions
+    // for the layout
     void VertexArray::setBuffer(unsigned int index, VertexBuffer& buffer, const BufferLayout& layout) {
         bind();
         buffer.bind();
@@ -29,7 +34,8 @@ namespace RecyclingGame {
         glEnableVertexAttribArray(index);
     }
 
-    void VertexArray::setIBuffer(unsigned int index, VertexBuffer &buffer, const BufferLayout &layout) {
+    // Same as setBuffer but for integer types
+    void VertexArray::setIBuffer(unsigned int index, VertexBuffer& buffer, const BufferLayout& layout) {
         bind();
         buffer.bind();
         glVertexAttribIPointer(
@@ -41,7 +47,8 @@ namespace RecyclingGame {
         glEnableVertexAttribArray(index);
     }
 
-    void VertexArray::setLBuffer(unsigned int index, VertexBuffer &buffer, const BufferLayout &layout) {
+    // Same as setBuffer but for double types
+    void VertexArray::setLBuffer(unsigned int index, VertexBuffer& buffer, const BufferLayout& layout) {
         bind();
         buffer.bind();
         glVertexAttribLPointer(
@@ -53,8 +60,8 @@ namespace RecyclingGame {
         glEnableVertexAttribArray(index);
     }
 
-
-
+    // Helper function to get data for glVertexAttribPointer so glad symbols don't have to be exposed
+    // in the header file, which can lead to include conflicts
     constexpr unsigned char VertexArray::elementsPerVertex(BufferLayout::ElementType elementType) {
         switch (elementType) {
             case BufferLayout::ElementType::BTYE:
@@ -97,6 +104,7 @@ namespace RecyclingGame {
         return 0;
     }
 
+    // Also a helper function for the above reason
     constexpr unsigned int VertexArray::elementType(BufferLayout::ElementType elementType) {
         switch (elementType) {
             case BufferLayout::ElementType::BTYE:

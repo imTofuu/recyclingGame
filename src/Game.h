@@ -16,6 +16,9 @@ namespace RecyclingGame {
         Game();
         ~Game() = default;
 
+        static void setInstance(Game* instance) { if (m_instance) return; m_instance = instance; }
+        static Game* getInstance() { return m_instance; }
+
         void init();
         void end();
 
@@ -23,6 +26,8 @@ namespace RecyclingGame {
         Window* getWindow() { return m_window; }
 
     private:
+
+        static Game* m_instance;
 
         BOO::Registry m_scene;
         Window* m_window = nullptr;

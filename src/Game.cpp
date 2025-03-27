@@ -3,13 +3,17 @@
 #include <iostream>
 
 #include "Logger.h"
-#include "Graphics/Mesh.h"
+#include "Components/MeshComponent.h"
+#include "Components/TransformComponent.h"
 #include "Graphics/Shader.h"
 #include "Graphics/ShaderProgram.h"
 #include "Graphics/VertexArray.h"
 #include "Graphics/VertexBuffer.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace RecyclingGame {
+
+    Game* Game::m_instance = nullptr;
 
     Game::Game() {
 
@@ -40,10 +44,6 @@ namespace RecyclingGame {
         
         auto window = Window("Recycling Game");
 
-        // In this project, glad is built without a GL loader so we must
-        // give it the GLFW loader.
-        gladLoadGL(glfwGetProcAddress);
-
         // ReSharper disable once CppDFALocalValueEscapesFunction
         // m_window does not need to be a heap allocated object
         // since it will not be needed after the init function
@@ -51,38 +51,85 @@ namespace RecyclingGame {
         // leak)
         m_window = &window;
 
+        // In this project, glad is built without a GL loader so we must
+        // give it the GLFW loader.
+        gladLoadGL(glfwGetProcAddress);
+
         // Set the clear colour to black to be used when glClear is called
         glClearColor(0, 0, 0, 1);
 
+        // Read and compile shaders from a path.
+        Shader vertShader("./../assets/Shaders/main.vert", Shader::ShaderType::VERT);
+        Shader fragShader("./../assets/Shaders/main.frag", Shader::ShaderType::FRAG);
+
+        // Attach the shaders to a shader program so they can be used
+        ShaderProgram shaderProgram;
+        shaderProgram.addShader(vertShader);
+        shaderProgram.addShader(fragShader);
+        shaderProgram.use();
+
+        BOO::EntityID eid = m_scene.createEntity();
+        BOO::ComponentRef<MeshComponent> msh = m_scene.addComponentToEntity<MeshComponent>(eid);
+        TransformComponent* tf = m_scene.addComponentToEntity<TransformComponent>(eid);
+
+        tf->translation.x = 0.5f;
+        
+        float testSquareVerticies[] = {
+            -0.5f, -0.5f, 0,
+            0.5f, -0.5f, 0,
+            0.5f, 0.5f, 0,
+            0.5f, 0.5f, 0,
+            -0.5f, 0.5f, 0,
+            -0.5f, -0.5f, 0,
+        };
+        
+        msh->verticies = testSquareVerticies;
+        msh->numVerticies = sizeof(testSquareVerticies) / sizeof(float);
+
         // This is the main loop of the game.
+
+        unsigned int frame = 0;
+        
         while (window.isOpen()) {
 
             // Clear the back buffer
             glClear(GL_COLOR_BUFFER_BIT);
 
-            float testSquareVerticies[] = {
-                -0.5f, -0.5f, 0,
-                0.5f, -0.5f, 0,
-                0.5f, 0.5f, 0,
-                0.5f, 0.5f, 0,
-                -0.5f, 0.5f, 0,
-                -0.5f, -0.5f, 0,
-            };
+            BOO::QueryResult result = m_scene.queryAll<MeshComponent>();
+            for (auto& [mesh] : result) {
 
-            VertexBuffer vertexBuffer(testSquareVerticies, sizeof(testSquareVerticies));
+                auto modelMatrix = glm::mat4(1.0f);
+
+                if (TransformComponent* transform = m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())) {
+                    modelMatrix = transform->getTransformationMatrix();
+                    transform->translation.x = sin(frame / 100.0f);
+                    frame++;
+                }
+                
+                VertexBuffer vertexBuffer(mesh->verticies, mesh->numVerticies * sizeof(float));
+
+                VertexArray vertexArray;
+                vertexArray.setBuffer(0, vertexBuffer, { BufferLayout::ElementType::FLOAT3 });
+
+                vertexArray.bind();
+
+                glUniformMatrix4fv(
+                    glGetUniformLocation(shaderProgram.getID(), "pvm"),
+                    1,
+                    GL_FALSE,
+                    glm::value_ptr(modelMatrix));
+
+                glDrawArrays(GL_TRIANGLES, 0, mesh->numVerticies);
+            }
+
+            /*VertexBuffer vertexBuffer(testSquareVerticies, sizeof(testSquareVerticies));
 
             VertexArray vertexArray;
             vertexArray.setBuffer(0, vertexBuffer, { BufferLayout::ElementType::FLOAT3 });
 
-            Shader vertShader("./../assets/Shaders/main.vert", Shader::ShaderType::VERT);
-            Shader fragShader("./../assets/Shaders/main.frag", Shader::ShaderType::FRAG);
-
-            ShaderProgram shaderProgram;
-            shaderProgram.addShader(vertShader);
-            shaderProgram.addShader(fragShader);
             shaderProgram.use();
 
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDrawArrays(GL_TRIANGLES, 0, 6);*/
             
             glfwPollEvents();
             window.update();
