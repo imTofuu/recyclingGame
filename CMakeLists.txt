@@ -28,6 +28,8 @@ add_executable(recyclingGame
         src/Components/MeshComponent.h
         src/Components/TransformComponent.h
         src/Components/TransformComponent.cpp
+        src/Components/CameraComponent.h
+        src/Components/CameraComponent.cpp
 )
 
 target_link_libraries(recyclingGame PRIVATE

@@ -68,11 +68,15 @@ namespace RecyclingGame {
         shaderProgram.addShader(fragShader);
         shaderProgram.use();
 
+        // Add a CameraComponent to the camera entity so the entity can actually
+        // be used as a camera.
+        m_scene.addComponentToEntity<CameraComponent>(m_cameraEntity);
+
         BOO::EntityID eid = m_scene.createEntity();
         BOO::ComponentRef<MeshComponent> msh = m_scene.addComponentToEntity<MeshComponent>(eid);
         TransformComponent* tf = m_scene.addComponentToEntity<TransformComponent>(eid);
 
-        tf->translation.x = 0.5f;
+        tf->translation.z = -5.0f;
         
         float testSquareVerticies[] = {
             -0.5f, -0.5f, 0,
@@ -86,6 +90,12 @@ namespace RecyclingGame {
         msh->verticies = testSquareVerticies;
         msh->numVerticies = sizeof(testSquareVerticies) / sizeof(float);
 
+        unsigned int frame = 0;
+
+        // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
+        // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.
+        glfwSwapInterval(1);
+        
         // This is the main loop of the game.
 
         unsigned int frame = 0;
@@ -95,6 +105,8 @@ namespace RecyclingGame {
             // Clear the back buffer
             glClear(GL_COLOR_BUFFER_BIT);
 
+            auto PVMatrix = getCamera()->getProjectionMatrix() * getCamera()->getViewMatrix();
+
             BOO::QueryResult result = m_scene.queryAll<MeshComponent>();
             for (auto& [mesh] : result) {
 
@@ -102,7 +114,9 @@ namespace RecyclingGame {
 
                 if (TransformComponent* transform = m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())) {
                     modelMatrix = transform->getTransformationMatrix();
-                    transform->translation.x = sin(frame / 100.0f);
+                    transform->translation.x = sin(frame / 1000.0f);
+                    transform->translation.y = cos(frame / 1000.0f);
+                    transform->translation.z = -5 + sin(frame / 1000.0f);
                     frame++;
                 }
                 
@@ -113,11 +127,13 @@ namespace RecyclingGame {
 
                 vertexArray.bind();
 
+                auto pvm = PVMatrix * modelMatrix;
+
                 glUniformMatrix4fv(
                     glGetUniformLocation(shaderProgram.getID(), "pvm"),
                     1,
                     GL_FALSE,
-                    glm::value_ptr(modelMatrix));
+                    glm::value_ptr(pvm));
 
                 glDrawArrays(GL_TRIANGLES, 0, mesh->numVerticies);
             }

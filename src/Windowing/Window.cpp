@@ -25,6 +25,20 @@ namespace RecyclingGame {
         // tearing by writing to one of the back buffers instead
         // of the one that is currently being shown
         glfwSwapBuffers(m_window);
+
+    unsigned int Window::getWidth() const {
+        int width = 0;
+        int _ = 0;
+        glfwGetWindowSize(m_window, &width, &_);
+        return width;
     }
+
+    unsigned int Window::getHeight() const {
+        int height = 0;
+        int _ = 0;
+        glfwGetWindowSize(m_window, &_, &height);
+        return height;
+    }
+
     
 } 

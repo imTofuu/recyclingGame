@@ -6,7 +6,9 @@
 // because Window.h includes GLFW, which includes a gl.h file. glad's gl.h
 // should be used instead.
 #include <glad/gl.h>
+
 #include "Windowing/Window.h"
+#include "Components/CameraComponent.h"
 
 namespace RecyclingGame {
 
@@ -25,12 +27,16 @@ namespace RecyclingGame {
         BOO::Registry& getScene() { return m_scene; }
         Window* getWindow() { return m_window; }
 
+        BOO::ComponentRef<CameraComponent> getCamera() { return m_scene.getComponentFromEntity<CameraComponent>(m_cameraEntity); }
+
     private:
 
         static Game* m_instance;
 
         BOO::Registry m_scene;
         Window* m_window = nullptr;
+
+        BOO::EntityID m_cameraEntity = m_scene.createEntity();
         
     };
     

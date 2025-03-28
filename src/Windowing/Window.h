@@ -14,6 +14,8 @@ namespace RecyclingGame {
         void update();
         
         [[nodiscard]] bool isOpen() const { return !glfwWindowShouldClose(m_window); }
+        [[nodiscard]] unsigned int getWidth() const;
+        [[nodiscard]] unsigned int getHeight() const;
 
     private:
 
