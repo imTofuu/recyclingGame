@@ -2,12 +2,12 @@
 
 namespace RecyclingGame {
 
-    class VertexBuffer {
+    class ElementBuffer {
     public:
 
-        VertexBuffer() : VertexBuffer(nullptr, 0) {}
-        VertexBuffer(const void* data, unsigned int size);
-
+        ElementBuffer() : ElementBuffer(nullptr, 0) {}
+        ElementBuffer(const void* data, unsigned int size);
+        
         void remove();
 
         void setData(const void* data, unsigned int size);
@@ -18,7 +18,7 @@ namespace RecyclingGame {
 
     private:
 
-        unsigned int m_handle = 0;
+        unsigned int m_handle;
         
     };
     

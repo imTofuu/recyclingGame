@@ -10,7 +10,7 @@ namespace RecyclingGame {
     glm::mat4 CameraComponent::getProjectionMatrix() const {
         Window* window = Game::getInstance()->getWindow();
         return glm::perspective(
-            glm::radians(45.0f),
+            glm::radians(fov),
             static_cast<float>(window->getWidth()) / static_cast<float>(window->getHeight()),
             0.1f,
             100.0f);

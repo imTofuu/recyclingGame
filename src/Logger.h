@@ -7,6 +7,8 @@ namespace RecyclingGame {
         static void info(const char* msg);
         static void error(const char* msg);
         static void fatal(const char* msg);
+
+        static void checkForGlError(const char* msg);
     
     };
 }

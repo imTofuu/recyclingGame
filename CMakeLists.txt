@@ -14,8 +14,6 @@ add_executable(recyclingGame
         src/Game.cpp
         src/Logger.cpp
         src/Logger.h
-        src/Windowing/Renderer.cpp
-        src/Windowing/Renderer.h
         src/Graphics/Vector3.h
         src/Graphics/VertexBuffer.h
         src/Graphics/VertexBuffer.cpp
@@ -25,11 +23,15 @@ add_executable(recyclingGame
         src/Graphics/Shader.cpp
         src/Graphics/ShaderProgram.h
         src/Graphics/ShaderProgram.cpp
+        src/Graphics/ElementBuffer.h
+        src/Graphics/ElementBuffer.cpp
         src/Components/MeshComponent.h
         src/Components/TransformComponent.h
         src/Components/TransformComponent.cpp
         src/Components/CameraComponent.h
         src/Components/CameraComponent.cpp
+        src/Graphics/Mesh.h
+        src/Graphics/Mesh.cpp
 )
 
 target_link_libraries(recyclingGame PRIVATE

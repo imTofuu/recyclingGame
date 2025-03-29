@@ -32,7 +32,8 @@ namespace RecyclingGame {
     public:
 
         VertexArray();
-        ~VertexArray();
+
+        void remove();
 
         void bind();
         

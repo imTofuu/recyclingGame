@@ -8,6 +8,8 @@ namespace RecyclingGame {
     public:
 
         ShaderProgram();
+        
+        void remove();
 
         void addShader(const Shader& shader);
         void use();

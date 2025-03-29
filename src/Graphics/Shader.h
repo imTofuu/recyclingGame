@@ -13,9 +13,8 @@ namespace RecyclingGame {
         };
         
         Shader(const char* path, ShaderType type);
-        ~Shader();
         
-        [[nodiscard]] unsigned int tempgetHandle() const { return m_handle; }
+        void remove();
         
     private:
 

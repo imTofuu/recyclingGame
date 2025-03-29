@@ -25,10 +25,13 @@ namespace RecyclingGame {
 
         // Generate the shader handle
         m_handle = glCreateShader(shaderType(type));
+        Logger::checkForGlError("Creating shader");
 
         // Set the source of the shader to the file source and compile it
         glShaderSource(m_handle, 1, &sourcePointer, nullptr);
+        Logger::checkForGlError("Setting shader source");
         glCompileShader(m_handle);
+        Logger::checkForGlError("Compiling shader");
 
         // Check for compilation success and log errors
         int success;
@@ -41,8 +44,9 @@ namespace RecyclingGame {
     }
 
     // Mark the shader for deletion
-    Shader::~Shader() {
+    void Shader::remove() {
         glDeleteShader(m_handle);
+        Logger::checkForGlError("Deleting shader");
     }
 
     // Helper function to get data for glCreateShader so glad symbols don't have to be exposed

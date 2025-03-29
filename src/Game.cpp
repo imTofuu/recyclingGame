@@ -7,8 +7,6 @@
 #include "Components/TransformComponent.h"
 #include "Graphics/Shader.h"
 #include "Graphics/ShaderProgram.h"
-#include "Graphics/VertexArray.h"
-#include "Graphics/VertexBuffer.h"
 #include <glm/gtc/type_ptr.hpp>
 
 namespace RecyclingGame {
@@ -78,74 +76,71 @@ namespace RecyclingGame {
 
         tf->translation.z = -5.0f;
         
-        float testSquareVerticies[] = {
+        float testSquareVertices[] = {
             -0.5f, -0.5f, 0,
             0.5f, -0.5f, 0,
             0.5f, 0.5f, 0,
-            0.5f, 0.5f, 0,
             -0.5f, 0.5f, 0,
-            -0.5f, -0.5f, 0,
         };
-        
-        msh->verticies = testSquareVerticies;
-        msh->numVerticies = sizeof(testSquareVerticies) / sizeof(float);
 
-        unsigned int frame = 0;
+        unsigned int testSquareIndices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
+
+        msh->mesh.setVertices(testSquareVertices, sizeof(testSquareVertices) / sizeof(float) / 3);
+        msh->mesh.setIndices(testSquareIndices, sizeof(testSquareIndices) / sizeof(unsigned int));
 
         // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
         // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
         
         // This is the main loop of the game.
-
-        unsigned int frame = 0;
-        
         while (window.isOpen()) {
 
             // Clear the back buffer
             glClear(GL_COLOR_BUFFER_BIT);
 
-            auto PVMatrix = getCamera()->getProjectionMatrix() * getCamera()->getViewMatrix();
+            // Get the matrices associated with the camera. One of these is the projection matrix, which
+            // can either be orthographic, where an object is always the same size regardless of distance
+            // from the camera, or it can be perspective, where an object is smaller the further away it is.
+            // It also has a view matrix which is similar to the model matrix but for the camera.
+            auto projectionMatrix = getCamera()->getProjectionMatrix();
+            auto viewMatrix = m_scene.entityHasComponent<TransformComponent>(getCamera().getEntity()) ? 
+                m_scene.getComponentFromEntity<TransformComponent>(getCamera().getEntity())->getTransformationMatrix() :
+                glm::mat4(1.0f);
 
-            BOO::QueryResult result = m_scene.queryAll<MeshComponent>();
-            for (auto& [mesh] : result) {
+            // Pre-multiply the camera matrices so it doesn't have to be done for every object.
+            auto PVMatrix = projectionMatrix * viewMatrix;
 
-                auto modelMatrix = glm::mat4(1.0f);
+            // Query for every object with a mesh in the scene and iterate through them.
+            for (auto& [mesh] : m_scene.queryAll<MeshComponent>()) {
 
-                if (TransformComponent* transform = m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())) {
-                    modelMatrix = transform->getTransformationMatrix();
-                    transform->translation.x = sin(frame / 1000.0f);
-                    transform->translation.y = cos(frame / 1000.0f);
-                    transform->translation.z = -5 + sin(frame / 1000.0f);
-                    frame++;
-                }
-                
-                VertexBuffer vertexBuffer(mesh->verticies, mesh->numVerticies * sizeof(float));
+                // Default identity matrix in case the object doesn't have a transform component. An
+                // identity matrix will not modify the other matrix when multiplied.
+                auto modelMatrix = m_scene.entityHasComponent<MeshComponent>(mesh.getEntity()) ?
+                    m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())->getTransformationMatrix() :
+                    glm::mat4(1.0f);
 
-                VertexArray vertexArray;
-                vertexArray.setBuffer(0, vertexBuffer, { BufferLayout::ElementType::FLOAT3 });
+                // Bind the object in the mesh
+                mesh->mesh.bind();
 
-                vertexArray.bind();
+                auto PVMMatrix = PVMatrix * modelMatrix;
 
-                auto pvm = PVMatrix * modelMatrix;
-
+                // Set the PVMMatrix as a uniform which can be accessed in the shader by declaring
+                // a mat4 uniform named PVMMatrix.
                 glUniformMatrix4fv(
-                    glGetUniformLocation(shaderProgram.getID(), "pvm"),
+                    glGetUniformLocation(shaderProgram.getID(), "PVMMatrix"),
                     1,
                     GL_FALSE,
-                    glm::value_ptr(pvm));
+                    glm::value_ptr(PVMMatrix));
 
-                glDrawArrays(GL_TRIANGLES, 0, mesh->numVerticies);
+                glDrawElements(
+                    GL_TRIANGLES,
+                    static_cast<int>(mesh->mesh.getNumVertices()),
+                    GL_UNSIGNED_INT,
+                    nullptr);
             }
-
-            /*VertexBuffer vertexBuffer(testSquareVerticies, sizeof(testSquareVerticies));
-
-            VertexArray vertexArray;
-            vertexArray.setBuffer(0, vertexBuffer, { BufferLayout::ElementType::FLOAT3 });
-
-            shaderProgram.use();
-
-            glDrawArrays(GL_TRIANGLES, 0, 6);*/
             
             glfwPollEvents();
             window.update();

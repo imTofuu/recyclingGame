@@ -2,6 +2,7 @@
 
 #include <csignal>
 #include <iostream>
+#include <glad/gl.h>
 
 namespace RecyclingGame {
 
@@ -24,6 +25,36 @@ namespace RecyclingGame {
     void Logger::fatal(const char* msg) {
         std::cerr << msg << std::endl;
         raise(SIGABRT);
+    }
+
+    // Check for a GL error. This is called after most OpenGL
+    // calls to check if something went wrong.
+    void Logger::checkForGlError(const char* msg) {
+        unsigned int error = glGetError();
+        if (error == GL_NO_ERROR) return;
+        
+        const char* errorm = nullptr;
+        switch (error) {
+            case GL_INVALID_ENUM:
+                errorm = "GL_INVALID_ENUM";
+            break;
+            case GL_INVALID_VALUE:
+                errorm = "GL_INVALID_VALUE";
+            break;
+            case GL_INVALID_OPERATION:
+                errorm = "GL_INVALID_OPERATION";
+            break;
+            case GL_OUT_OF_MEMORY:
+                errorm = "GL_OUT_OF_MEMORY";
+            break;
+            default:
+                errorm = "Unknown error";
+        }
+        std::cerr << msg << " (" << errorm << ") " << std::endl;
+        raise(SIGABRT);
+        while (error != GL_NO_ERROR) {
+            error = glGetError();
+        }
     }
     
 }

@@ -2,21 +2,26 @@
 
 #include <glad/gl.h>
 
+#include "Logger.h"
+
 namespace RecyclingGame {
 
     // Generate a handle for a vertex array
     VertexArray::VertexArray() {
         glGenVertexArrays(1, &m_handle);
+        Logger::checkForGlError("Genning vertex array");
     }
 
     // Mark the vertex array for deletion
-    VertexArray::~VertexArray() {
+    void VertexArray::remove() {
         glDeleteVertexArrays(1, &m_handle);
+        Logger::checkForGlError("Deleting vertex array");
     }
 
     // Bind the vertex array so operations will be performed on it
     void VertexArray::bind() {
         glBindVertexArray(m_handle);
+        Logger::checkForGlError("Binding vertex array");
     }
 
     // Set and enable the vertex buffer at index for the vertex array using data from the helper functions
@@ -31,7 +36,9 @@ namespace RecyclingGame {
             layout.normalise,
             layout.stride,
             nullptr);
+        Logger::checkForGlError("Setting vertex attrib");
         glEnableVertexAttribArray(index);
+        Logger::checkForGlError("Enabling vertex attrib");
     }
 
     // Same as setBuffer but for integer types
@@ -44,7 +51,9 @@ namespace RecyclingGame {
             elementType(layout.elementType),
             layout.stride,
             nullptr);
+        Logger::checkForGlError("Setting vertex attribI");
         glEnableVertexAttribArray(index);
+        Logger::checkForGlError("Enabling vertex attrib");
     }
 
     // Same as setBuffer but for double types
@@ -57,7 +66,9 @@ namespace RecyclingGame {
             elementType(layout.elementType),
             layout.stride,
             nullptr);
+        Logger::checkForGlError("Setting vertex attribL");
         glEnableVertexAttribArray(index);
+        Logger::checkForGlError("Enabling vertex attrib");
     }
 
     // Helper function to get data for glVertexAttribPointer so glad symbols don't have to be exposed

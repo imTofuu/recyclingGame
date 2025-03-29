@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <chrono>
+
 namespace RecyclingGame {
 
     // Creates a window with a name and sets it as the current
@@ -19,12 +21,18 @@ namespace RecyclingGame {
     Window::~Window() {
         glfwDestroyWindow(m_window);
     }
-
+    
     void Window::update() {
         // GLFW uses multiple screen buffers to prevent screen
         // tearing by writing to one of the back buffers instead
         // of the one that is currently being shown
         glfwSwapBuffers(m_window);
+
+        static std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        m_dt = std::chrono::duration<double>(currentTime - lastTime).count();
+        lastTime = currentTime;
+    }
 
     unsigned int Window::getWidth() const {
         int width = 0;
