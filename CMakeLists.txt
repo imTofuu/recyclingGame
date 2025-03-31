@@ -6,6 +6,8 @@ project(recyclingGame)
 
 add_subdirectory(lib)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${PROJECT_NAME})
+
 add_executable(recyclingGame
         src/main.cpp
         src/Windowing/Window.cpp
@@ -55,3 +57,10 @@ target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/fast_obj
         ${PROJECT_SOURCE_DIR}/lib/stb
 )
+
+add_custom_command(
+        TARGET recyclingGame
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)

@@ -55,8 +55,8 @@ namespace RecyclingGame {
         glClearColor(0, 0, 0, 1);
 
         // Read and compile shaders from a path.
-        Shader vertShader("./../assets/Shaders/main.vert", Shader::ShaderType::VERT);
-        Shader fragShader("./../assets/Shaders/main.frag", Shader::ShaderType::FRAG);
+        Shader vertShader("./assets/Shaders/main.vert", Shader::ShaderType::VERT);
+        Shader fragShader("./assets/Shaders/main.frag", Shader::ShaderType::FRAG);
 
         // Attach the shaders to a shader program so they can be used
         ShaderProgram shaderProgram;
@@ -99,7 +99,7 @@ namespace RecyclingGame {
         VertexBuffer uvBuffer;
         uvBuffer.setData(testSquareUVs, sizeof(testSquareUVs));
 
-        msh->mesh.setTexture(AssetFetcher::textureFromFile("./../assets/texture.png"));
+        msh->mesh.setTexture(AssetFetcher::textureFromFile("./assets/texture.png"));
         msh->mesh.setBuffer(1, uvBuffer, BufferLayout::ElementType::FLOAT2);
 
         /*BOO::EntityID eid2 = m_scene.createEntity();
@@ -108,7 +108,7 @@ namespace RecyclingGame {
 
         tf2->translation.z = -5.0f;
 
-        msh2->mesh = AssetFetcher::meshFromOBJ("../assets/Suzanne.obj");*/
+        msh2->mesh = AssetFetcher::meshFromOBJ("./assets/Suzanne.obj");*/
 
         // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
         // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.

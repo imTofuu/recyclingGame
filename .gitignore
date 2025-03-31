@@ -3,6 +3,7 @@
 /cmake-*
 /fetch
 /lib/*
+/bin
 
 !CMakeLists.txt
 !stb_image.cpp
