@@ -14,8 +14,6 @@ namespace RecyclingGame {
 
         void bind();
 
-        [[nodiscard]] bool hasExisted() const { return m_handle; }
-
     private:
 
         unsigned int m_handle = 0;

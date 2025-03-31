@@ -10,5 +10,15 @@ namespace RecyclingGame {
         
         float x, y, z;
     };
+
+    struct Vector2 {
+
+        Vector2() : x(0), y(0) {}
+        explicit Vector2(float scale) : x(scale), y(scale) {}
+        Vector2(float x, float y) : x(x), y(y) {}
+
+        float x, y;
+        
+    };
     
 }

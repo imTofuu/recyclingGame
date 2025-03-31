@@ -11,7 +11,7 @@ namespace RecyclingGame {
         // Create the Input File Stream to read the shader source from path
         std::ifstream file(path, std::ios::in);
         if (!file.is_open()) {
-            Logger::error((std::string("Failed to open shader file: ") + std::string(path)).c_str());
+            Logger::error("Failed to open shader file: " + std::string(path));
             return;
         }
         std::string source;
@@ -39,7 +39,7 @@ namespace RecyclingGame {
         if (!success) {
             char infoLog[512];
             glGetShaderInfoLog(m_handle, 512, nullptr, infoLog);
-            Logger::error(("Vertex Shader compilation failed: " + std::string(infoLog)).c_str());
+            Logger::error("Vertex Shader compilation failed: " + std::string(infoLog));
         }
     }
 

@@ -14,7 +14,7 @@ add_executable(recyclingGame
         src/Game.cpp
         src/Logger.cpp
         src/Logger.h
-        src/Graphics/Vector3.h
+        src/Graphics/Vector.h
         src/Graphics/VertexBuffer.h
         src/Graphics/VertexBuffer.cpp
         src/Graphics/VertexArray.h
@@ -30,8 +30,12 @@ add_executable(recyclingGame
         src/Components/TransformComponent.cpp
         src/Components/CameraComponent.h
         src/Components/CameraComponent.cpp
+        src/AssetFetcher.h
         src/Graphics/Mesh.h
         src/Graphics/Mesh.cpp
+        src/AssetFetcher.cpp
+        src/Graphics/Texture.h
+        src/Graphics/Texture.cpp
 )
 
 target_link_libraries(recyclingGame PRIVATE
@@ -40,6 +44,7 @@ target_link_libraries(recyclingGame PRIVATE
         glm
         boo
         fast_obj_lib
+        stb
 )
 target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/glad/include
@@ -48,4 +53,5 @@ target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/boo/include
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/lib/fast_obj
+        ${PROJECT_SOURCE_DIR}/lib/stb
 )

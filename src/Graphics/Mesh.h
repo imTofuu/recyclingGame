@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "ElementBuffer.h"
+#include "Texture.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 
@@ -19,7 +20,8 @@ namespace RecyclingGame {
         void setIndices(const unsigned int* indices, unsigned int numIndices);
 
         void setBuffer(unsigned int index, VertexBuffer& buffer, BufferLayout::ElementType type);
-
+        void setTexture(const Texture& texture) { m_texture = texture; }
+        
         void bind();
 
         [[nodiscard]] unsigned int getNumVertices() const { return m_elementBuffer.hasExisted() ? m_numIndices : m_numVertices; }
@@ -33,6 +35,8 @@ namespace RecyclingGame {
         unsigned int m_numIndices = 0;
         
         ElementBuffer m_elementBuffer;
+
+        Texture m_texture;
 
         VertexArray m_vertexArray;
         

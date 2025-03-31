@@ -31,6 +31,7 @@ namespace RecyclingGame {
 
     void Mesh::bind() {
         m_vertexArray.bind();
+        m_texture.bind();
         m_elementBuffer.bind();
     }
 

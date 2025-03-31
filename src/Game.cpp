@@ -9,6 +9,8 @@
 #include "Graphics/ShaderProgram.h"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "AssetFetcher.h"
+
 namespace RecyclingGame {
 
     Game* Game::m_instance = nullptr;
@@ -21,11 +23,7 @@ namespace RecyclingGame {
         // if you are running a debugger which you can then use to go through the
         // call stack and find the error.
         glfwSetErrorCallback([](int error, const char* description) {
-            Logger::fatal(
-                (std::to_string(error) +
-                    std::string(" ") +
-                    std::string(description)
-                    ).c_str());
+            Logger::fatal(std::to_string(error) + std::string(" ") + std::string(description));
         });
 
         // Init GLFW, windowing library
@@ -83,6 +81,13 @@ namespace RecyclingGame {
             -0.5f, 0.5f, 0,
         };
 
+        float testSquareUVs[] = {
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f
+        };
+
         unsigned int testSquareIndices[] = {
             0, 1, 2,
             2, 3, 0
@@ -90,6 +95,20 @@ namespace RecyclingGame {
 
         msh->mesh.setVertices(testSquareVertices, sizeof(testSquareVertices) / sizeof(float) / 3);
         msh->mesh.setIndices(testSquareIndices, sizeof(testSquareIndices) / sizeof(unsigned int));
+
+        VertexBuffer uvBuffer;
+        uvBuffer.setData(testSquareUVs, sizeof(testSquareUVs));
+
+        msh->mesh.setTexture(AssetFetcher::textureFromFile("./../assets/texture.png"));
+        msh->mesh.setBuffer(1, uvBuffer, BufferLayout::ElementType::FLOAT2);
+
+        /*BOO::EntityID eid2 = m_scene.createEntity();
+        BOO::ComponentRef<MeshComponent> msh2 = m_scene.addComponentToEntity<MeshComponent>(eid2);
+        TransformComponent* tf2 = m_scene.addComponentToEntity<TransformComponent>(eid2);
+
+        tf2->translation.z = -5.0f;
+
+        msh2->mesh = AssetFetcher::meshFromOBJ("../assets/Suzanne.obj");*/
 
         // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
         // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.
@@ -104,7 +123,7 @@ namespace RecyclingGame {
             // Get the matrices associated with the camera. One of these is the projection matrix, which
             // can either be orthographic, where an object is always the same size regardless of distance
             // from the camera, or it can be perspective, where an object is smaller the further away it is.
-            // It also has a view matrix which is similar to the model matrix but for the camera.
+            // It also has a view matrix which is similar to a model matrix but for the camera.
             auto projectionMatrix = getCamera()->getProjectionMatrix();
             auto viewMatrix = m_scene.entityHasComponent<TransformComponent>(getCamera().getEntity()) ? 
                 m_scene.getComponentFromEntity<TransformComponent>(getCamera().getEntity())->getTransformationMatrix() :
@@ -122,9 +141,17 @@ namespace RecyclingGame {
                     m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())->getTransformationMatrix() :
                     glm::mat4(1.0f);
 
-                // Bind the object in the mesh
+                if (auto tf = m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())) {
+                    tf->rotation.y += 0.01f;
+                }
+
+                // Bind the mesh for drawing
                 mesh->mesh.bind();
 
+                // Calculate the PVM matrix by multiplying the camera matrices with the model matrix.
+                // The model matrix is the transformation matrix of the object, which when multiplied with
+                // the model space vertices will convert it into world space. The PVMatrix will convert the
+                // world space vertices into clip space.
                 auto PVMMatrix = PVMatrix * modelMatrix;
 
                 // Set the PVMMatrix as a uniform which can be accessed in the shader by declaring
@@ -135,14 +162,18 @@ namespace RecyclingGame {
                     GL_FALSE,
                     glm::value_ptr(PVMMatrix));
 
+                // Draw the bound mesh using the bound index buffer and vertex buffer.
                 glDrawElements(
                     GL_TRIANGLES,
                     static_cast<int>(mesh->mesh.getNumVertices()),
                     GL_UNSIGNED_INT,
                     nullptr);
             }
-            
+
+            // GLFW polls events such as keyboard and mouse input. 
             glfwPollEvents();
+
+            // The buffers are swapped and dt is calculated here.
             window.update();
         }
     }
