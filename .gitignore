@@ -5,3 +5,4 @@
 /lib/*
 
 !CMakeLists.txt
+!stb_image.cpp
