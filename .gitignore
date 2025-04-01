@@ -4,6 +4,7 @@
 /fetch
 /lib/*
 /bin
+/build
 
 !CMakeLists.txt
 !stb_image.cpp
