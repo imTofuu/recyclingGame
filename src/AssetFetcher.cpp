@@ -1,6 +1,7 @@
 #include "AssetFetcher.h"
 
 #include <cstdio>
+#include <cstring>
 #include <stb_image.h>
 
 #include "Logger.h"
