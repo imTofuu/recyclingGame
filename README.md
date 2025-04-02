@@ -9,6 +9,7 @@ release page or by building it with CMake.
 - CMake 3.20 or higher to generate the makefiles
 - git to fetch dependencies
 - (For linux systems) Wayland dev libraries
+- Python for project configuration
 - jinja2 python package to build glad
 
 Run run.sh to configure, build, and run the project. It does not work with 
