@@ -39,7 +39,8 @@ namespace RecyclingGame {
         if (!success) {
             char infoLog[512];
             glGetShaderInfoLog(m_handle, 512, nullptr, infoLog);
-            Logger::error("Vertex Shader compilation failed: " + std::string(infoLog));
+            Logger::error("Shader compilation failed: " + std::string(infoLog));
+            Logger::error("Shader: " + std::string(path));
         }
     }
 

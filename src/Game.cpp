@@ -5,9 +5,6 @@
 #include "Logger.h"
 #include "Components/MeshComponent.h"
 #include "Components/TransformComponent.h"
-#include "Graphics/Shader.h"
-#include "Graphics/ShaderProgram.h"
-#include <glm/gtc/type_ptr.hpp>
 
 #include "AssetFetcher.h"
 
@@ -40,29 +37,18 @@ namespace RecyclingGame {
         
         auto window = Window("Recycling Game");
 
+        // In this project, glad is built without a GL loader so we must
+        // give it the GLFW loader.
+        gladLoadGL(glfwGetProcAddress);
+
+        window.init();
+
         // ReSharper disable once CppDFALocalValueEscapesFunction
         // m_window does not need to be a heap allocated object
         // since it will not be needed after the init function
         // (this will improve speed and reduce the risk of a memory
         // leak)
         m_window = &window;
-
-        // In this project, glad is built without a GL loader so we must
-        // give it the GLFW loader.
-        gladLoadGL(glfwGetProcAddress);
-
-        // Set the clear colour to black to be used when glClear is called
-        glClearColor(0, 0, 0, 1);
-
-        // Read and compile shaders from a path.
-        Shader vertShader("./assets/Shaders/main.vert", Shader::ShaderType::VERT);
-        Shader fragShader("./assets/Shaders/main.frag", Shader::ShaderType::FRAG);
-
-        // Attach the shaders to a shader program so they can be used
-        ShaderProgram shaderProgram;
-        shaderProgram.addShader(vertShader);
-        shaderProgram.addShader(fragShader);
-        shaderProgram.use();
 
         // Add a CameraComponent to the camera entity so the entity can actually
         // be used as a camera.
@@ -81,6 +67,13 @@ namespace RecyclingGame {
             -0.5f, 0.5f, 0,
         };
 
+        float testSquareNormals[] = {
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f
+        };
+
         float testSquareUVs[] = {
             1.0f, 1.0f,
             0.0f, 1.0f,
@@ -96,11 +89,15 @@ namespace RecyclingGame {
         msh->mesh.setVertices(testSquareVertices, sizeof(testSquareVertices) / sizeof(float) / 3);
         msh->mesh.setIndices(testSquareIndices, sizeof(testSquareIndices) / sizeof(unsigned int));
 
+        VertexBuffer normalBuffer;
+        normalBuffer.setData(testSquareNormals, sizeof(testSquareNormals));
+
         VertexBuffer uvBuffer;
         uvBuffer.setData(testSquareUVs, sizeof(testSquareUVs));
 
         msh->mesh.setTexture(AssetFetcher::textureFromFile("./assets/texture.png"));
-        msh->mesh.setBuffer(1, uvBuffer, BufferLayout::ElementType::FLOAT2);
+        msh->mesh.setBuffer(1, normalBuffer, BufferLayout::ElementType::FLOAT3);
+        msh->mesh.setBuffer(2, uvBuffer, BufferLayout::ElementType::FLOAT2);
 
         /*BOO::EntityID eid2 = m_scene.createEntity();
         BOO::ComponentRef<MeshComponent> msh2 = m_scene.addComponentToEntity<MeshComponent>(eid2);
@@ -116,64 +113,11 @@ namespace RecyclingGame {
         
         // This is the main loop of the game.
         while (window.isOpen()) {
-
-            // Clear the back buffer
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            // Get the matrices associated with the camera. One of these is the projection matrix, which
-            // can either be orthographic, where an object is always the same size regardless of distance
-            // from the camera, or it can be perspective, where an object is smaller the further away it is.
-            // It also has a view matrix which is similar to a model matrix but for the camera.
-            auto projectionMatrix = getCamera()->getProjectionMatrix();
-            auto viewMatrix = m_scene.entityHasComponent<TransformComponent>(getCamera().getEntity()) ? 
-                m_scene.getComponentFromEntity<TransformComponent>(getCamera().getEntity())->getTransformationMatrix() :
-                glm::mat4(1.0f);
-
-            // Pre-multiply the camera matrices so it doesn't have to be done for every object.
-            auto PVMatrix = projectionMatrix * viewMatrix;
-
-            // Query for every object with a mesh in the scene and iterate through them.
-            for (auto& [mesh] : m_scene.queryAll<MeshComponent>()) {
-
-                // Default identity matrix in case the object doesn't have a transform component. An
-                // identity matrix will not modify the other matrix when multiplied.
-                auto modelMatrix = m_scene.entityHasComponent<MeshComponent>(mesh.getEntity()) ?
-                    m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())->getTransformationMatrix() :
-                    glm::mat4(1.0f);
-
-                if (auto tf = m_scene.getComponentFromEntity<TransformComponent>(mesh.getEntity())) {
-                    tf->rotation.y += 0.01f;
-                }
-
-                // Bind the mesh for drawing
-                mesh->mesh.bind();
-
-                // Calculate the PVM matrix by multiplying the camera matrices with the model matrix.
-                // The model matrix is the transformation matrix of the object, which when multiplied with
-                // the model space vertices will convert it into world space. The PVMatrix will convert the
-                // world space vertices into clip space.
-                auto PVMMatrix = PVMatrix * modelMatrix;
-
-                // Set the PVMMatrix as a uniform which can be accessed in the shader by declaring
-                // a mat4 uniform named PVMMatrix.
-                glUniformMatrix4fv(
-                    glGetUniformLocation(shaderProgram.getID(), "PVMMatrix"),
-                    1,
-                    GL_FALSE,
-                    glm::value_ptr(PVMMatrix));
-
-                // Draw the bound mesh using the bound index buffer and vertex buffer.
-                glDrawElements(
-                    GL_TRIANGLES,
-                    static_cast<int>(mesh->mesh.getNumVertices()),
-                    GL_UNSIGNED_INT,
-                    nullptr);
-            }
-
+            
             // GLFW polls events such as keyboard and mouse input. 
             glfwPollEvents();
 
-            // The buffers are swapped and dt is calculated here.
+            // The game is rendered, buffers are swapped, and dt is calculated here.
             window.update();
         }
     }

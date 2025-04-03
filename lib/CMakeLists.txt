@@ -58,10 +58,5 @@ FetchContent_MakeAvailable(glad_fetch glfw glm boo fastobj stbimage)
 glad_add_library(glad STATIC API gl:core=4.1 LOCATION ${PROJECT_SOURCE_DIR}/lib/glad)
 
 project(stb)
-add_library(
-        stb STATIC
-        stb_image.cpp
-)
-target_include_directories(stb PUBLIC
-        stb
-)
+add_library(stb STATIC stb_image.cpp)
+target_include_directories(stb PUBLIC stb)

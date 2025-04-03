@@ -4,9 +4,10 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(recyclingGame)
 
-add_subdirectory(lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/recyclingGame)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/${PROJECT_NAME})
+add_subdirectory(assets)
+add_subdirectory(lib)
 
 add_executable(recyclingGame
         src/main.cpp
@@ -38,7 +39,11 @@ add_executable(recyclingGame
         src/AssetFetcher.cpp
         src/Graphics/Texture.h
         src/Graphics/Texture.cpp
+        src/Windowing/Renderer.cpp
+        src/Windowing/Renderer.h
 )
+
+add_dependencies(recyclingGame copy_assets)
 
 target_link_libraries(recyclingGame PRIVATE
         glad
@@ -48,6 +53,7 @@ target_link_libraries(recyclingGame PRIVATE
         fast_obj_lib
         stb
 )
+
 target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/glad/include
         ${PROJECT_SOURCE_DIR}/lib/glfw/include
@@ -57,10 +63,3 @@ target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/fast_obj
         ${PROJECT_SOURCE_DIR}/lib/stb
 )
-
-add_custom_command(
-        TARGET recyclingGame
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)

@@ -2,6 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Renderer.h"
+
 namespace RecyclingGame {
     class Window {
     public:
@@ -9,6 +11,7 @@ namespace RecyclingGame {
         explicit Window(const char* name);
         ~Window();
 
+        void init();
         void update();
         
         [[nodiscard]] bool isOpen() const { return !glfwWindowShouldClose(m_window); }
@@ -21,6 +24,8 @@ namespace RecyclingGame {
 
         double m_dt = 0;
         GLFWwindow* m_window;
+
+        Renderer m_renderer;
         
     };
 }

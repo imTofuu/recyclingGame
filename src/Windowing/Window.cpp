@@ -17,12 +17,20 @@ namespace RecyclingGame {
         glfwMakeContextCurrent(m_window);
     }
 
+    void Window::init() {
+        m_renderer.init();
+    }
+
     // Free memory associated with the window and destroy the GL context
     Window::~Window() {
         glfwDestroyWindow(m_window);
     }
     
     void Window::update() {
+
+        // Render the current scene
+        m_renderer.render();
+        
         // GLFW uses multiple screen buffers to prevent screen
         // tearing by writing to one of the back buffers instead
         // of the one that is currently being shown

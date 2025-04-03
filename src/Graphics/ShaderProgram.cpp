@@ -25,6 +25,16 @@ namespace RecyclingGame {
         Logger::checkForGlError("Attaching shader to program");
         glLinkProgram(m_handle);
         Logger::checkForGlError("Linking shader program");
+        GLint linked = 0;
+        glGetProgramiv(m_handle, GL_LINK_STATUS, &linked);
+        if (!linked) {
+            GLint length = 0;
+            glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
+            char* log = new char[length];
+            glGetProgramInfoLog(m_handle, length, nullptr, log);
+            Logger::fatal(log);
+            delete[] log;
+        }
     }
 
     // Use the program for all draw calls until another program is used
