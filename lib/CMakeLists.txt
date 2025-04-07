@@ -37,12 +37,12 @@ FetchContent_Declare(
         SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/boo
 )
 FetchContent_Declare(
-        fastobj
-        GIT_REPOSITORY https://github.com/thisistherk/fast_obj.git
+        assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
         GIT_TAG        master
         GIT_SHALLOW    TRUE
         
-        SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/fast_obj
+        SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/assimp
 )
 FetchContent_Declare(
         stbimage
@@ -53,7 +53,13 @@ FetchContent_Declare(
         SOURCE_DIR    ${PROJECT_SOURCE_DIR}/lib/stb
 )
 
-FetchContent_MakeAvailable(glad_fetch glfw glm boo fastobj stbimage)
+if(UNIX AND NOT APPLE)
+    find_program(WAYLAND_SCANNER_EXECUTABLE NAMES wayland-scanner)
+    if (NOT WAYLAND_SCANNER_EXECUTABLE)
+        endif()
+endif()
+
+FetchContent_MakeAvailable(glad_fetch glfw glm boo assimp stbimage)
 
 glad_add_library(glad STATIC API gl:core=4.1 LOCATION ${PROJECT_SOURCE_DIR}/lib/glad)
 

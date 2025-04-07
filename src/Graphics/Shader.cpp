@@ -15,6 +15,12 @@ namespace RecyclingGame {
             return;
         }
         std::string source;
+
+        std::getline(file, source);
+
+        // Define the max number of lights that can be processed per draw call so it can be changed easier in CMake
+        source += "\n#define MAX_DRAW_LIGHTS " + std::to_string(MAX_DRAW_LIGHTS) + '\n';
+        
         std::string line;
         // Get the next line and concatenate it to source until the end of the file
         while (std::getline(file, line)) {

@@ -28,7 +28,7 @@ add_executable(recyclingGame
         src/Graphics/ShaderProgram.cpp
         src/Graphics/ElementBuffer.h
         src/Graphics/ElementBuffer.cpp
-        src/Components/MeshComponent.h
+        src/Components/ModelComponent.h
         src/Components/TransformComponent.h
         src/Components/TransformComponent.cpp
         src/Components/CameraComponent.h
@@ -41,7 +41,12 @@ add_executable(recyclingGame
         src/Graphics/Texture.cpp
         src/Windowing/Renderer.cpp
         src/Windowing/Renderer.h
+        src/Components/LightComponent.h
+        src/Graphics/Model.h
+        src/Graphics/Model.cpp
 )
+
+add_compile_definitions(MAX_DRAW_LIGHTS=16)
 
 add_dependencies(recyclingGame copy_assets)
 
@@ -50,7 +55,7 @@ target_link_libraries(recyclingGame PRIVATE
         glfw
         glm
         boo
-        fast_obj_lib
+        assimp
         stb
 )
 
@@ -60,6 +65,6 @@ target_include_directories(recyclingGame PUBLIC
         ${PROJECT_SOURCE_DIR}/lib/glm
         ${PROJECT_SOURCE_DIR}/lib/boo/include
         ${PROJECT_SOURCE_DIR}/src
-        ${PROJECT_SOURCE_DIR}/lib/fast_obj
+        ${PROJECT_SOURCE_DIR}/lib/assimp/include
         ${PROJECT_SOURCE_DIR}/lib/stb
 )

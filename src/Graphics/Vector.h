@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/vec3.hpp>
 
 namespace RecyclingGame {
 
@@ -7,6 +8,8 @@ namespace RecyclingGame {
         Vector3() : x(0), y(0), z(0) {}
         explicit Vector3(float scale) : x(scale), y(scale), z(scale) {}
         Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+
+        Vector3(glm::vec3 vec) : x(vec.x), y(vec.y), z(vec.z) {}
         
         float x, y, z;
     };

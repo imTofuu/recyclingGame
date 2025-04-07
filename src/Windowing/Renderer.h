@@ -20,8 +20,11 @@ namespace RecyclingGame {
         Shader* m_vertShader = nullptr, * m_fragShader = nullptr;
         ShaderProgram* m_shaderProgram = nullptr;
 
-        float m_ambientStrength = 0.5f;
-        Vector3 m_ambientColor = Vector3(0.0f, 1.0f, 1.0f);
+        Shader* m_lightVertShader = nullptr, * m_lightFragShader = nullptr;
+        ShaderProgram* m_lightShaderProgram = nullptr;
+
+        float m_ambientStrength = 0.1f;
+        Vector3 m_ambientColor = Vector3(1.0f, 1.0f, 1.0f);
         
     };
     

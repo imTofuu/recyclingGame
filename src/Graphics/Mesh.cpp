@@ -27,6 +27,7 @@ namespace RecyclingGame {
 
     void Mesh::setBuffer(unsigned int index, VertexBuffer& buffer, BufferLayout::ElementType type) {
         m_vertexArray.setBuffer(index, buffer, type);
+        m_buffers.push_back(buffer);
     }
 
     void Mesh::bind() {
