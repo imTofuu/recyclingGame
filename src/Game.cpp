@@ -63,6 +63,7 @@ namespace RecyclingGame {
 
         BOO::EntityID testEntity = m_scene.createEntity();
         BOO::ComponentRef<ModelComponent> testModel = m_scene.addComponentToEntity<ModelComponent>(testEntity);
+        BOO::ComponentRef<TransformComponent> testTransform = m_scene.addComponentToEntity<TransformComponent>(testEntity);
 
         testModel->model = AssetFetcher::modelFromPath("./assets/Suzanne.obj");
         testModel->model.setTexture(0, AssetFetcher::textureFromFile("./assets/white.png"));

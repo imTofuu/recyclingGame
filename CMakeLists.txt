@@ -44,6 +44,8 @@ add_executable(recyclingGame
         src/Components/LightComponent.h
         src/Graphics/Model.h
         src/Graphics/Model.cpp
+        src/KeyListener.h
+        src/KeyListener.cpp
 )
 
 add_compile_definitions(MAX_DRAW_LIGHTS=16)

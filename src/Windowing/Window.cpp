@@ -2,7 +2,14 @@
 
 #include <chrono>
 
+#include "Logger.h"
+
 namespace RecyclingGame {
+
+    static void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods) {
+        auto* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        instance->handleKeyChange(static_cast<Key>(key), action);
+    }
 
     // Creates a window with a name and sets it as the current
     // context for OpenGL.
@@ -15,6 +22,10 @@ namespace RecyclingGame {
             nullptr);
 
         glfwMakeContextCurrent(m_window);
+
+        glfwSetWindowUserPointer(m_window, this);
+
+        glfwSetKeyCallback(m_window, keyChanged);
     }
 
     void Window::init() {
@@ -36,11 +47,20 @@ namespace RecyclingGame {
         // of the one that is currently being shown
         glfwSwapBuffers(m_window);
 
-        static std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        m_dt = std::chrono::duration<double>(currentTime - lastTime).count();
+        static double lastTime = glfwGetTime();
+        double currentTime = glfwGetTime();
+        m_dt = currentTime - lastTime;
         lastTime = currentTime;
     }
+
+    void Window::handleKeyChange(Key key, int action) {
+        if (action == GLFW_PRESS) {
+            m_keyListener.setKeyEnabledState(key, true);
+        } else if (action == GLFW_RELEASE) {
+            m_keyListener.setKeyEnabledState(key, false);
+        }
+    }
+
 
     unsigned int Window::getWidth() const {
         int width = 0;
