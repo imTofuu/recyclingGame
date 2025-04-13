@@ -77,17 +77,9 @@ namespace RecyclingGame {
         
         m_shaderProgram->use();
 
-        glUniform1fv(
-            glGetUniformLocation(m_shaderProgram->getID(), "u_ambientStrength"),
-            1,
-            &m_ambientStrength);
-        Logger::checkForGlError("Setting ambient strength uniform");
+        m_shaderProgram->setFloat("u_ambientStrength", m_ambientStrength);
+        m_shaderProgram->setFloats("u_ambientColour", reinterpret_cast<float*>(&m_ambientColor), 3);
         
-        glUniform3fv(
-            glGetUniformLocation(m_shaderProgram->getID(), "u_ambientColour"),
-            1,
-            reinterpret_cast<float*>(&m_ambientColor));
-        Logger::checkForGlError("Setting ambient colour uniform");
     }
 
     void Renderer::render() {
@@ -138,67 +130,37 @@ namespace RecyclingGame {
 
                 m_lightShaderProgram->use();
 
-                glUniform3fv(
-                    glGetUniformLocation(m_lightShaderProgram->getID(), "u_lightColour"),
-                    1,
-                    reinterpret_cast<float*>(&light->colour));
-
-                glUniformMatrix4fv(
-                    glGetUniformLocation(m_lightShaderProgram->getID(), "u_PVMMatrix"),
-                    1,
-                    GL_FALSE,
-                    glm::value_ptr(lightPVM));
+                m_lightShaderProgram->setFloats("u_lightColour", reinterpret_cast<float*>(&light->colour), 3);
+                m_lightShaderProgram->setMat4("u_PVMMatrix", glm::value_ptr(lightPVM));
 
                 lightModel.draw();
 
                 m_shaderProgram->use();
-                
-                glUniform3fv(
-                    glGetUniformLocation(m_shaderProgram->getID(), ("u_lightInfos[" + std::to_string(i) + "].position").c_str()),
-                    1,
-                    lightTransform ? reinterpret_cast<float*>(&lightTransform->translation) : emptyvec);
 
-                glUniform3fv(
-                    glGetUniformLocation(m_shaderProgram->getID(), ("u_lightInfos[" + std::to_string(i) + "].direction").c_str()),
-                    1,
-                    lightTransform ? reinterpret_cast<float*>(&lightTransform->rotation) : emptyvec);
-
-                glUniform3fv(
-                    glGetUniformLocation(m_shaderProgram->getID(), ("u_lightInfos[" + std::to_string(i) + "].colour").c_str()),
-                    1,
-                    reinterpret_cast<float*>(&light->colour));
-
-                glUniform1fv(
-                    glGetUniformLocation(m_shaderProgram->getID(), ("u_lightInfos[" + std::to_string(i) + "].intensity").c_str()),
-                    1,
-                    &light->intensity);
-
-                glUniform1iv(
-                    glGetUniformLocation(m_shaderProgram->getID(), ("u_lightInfos[" + std::to_string(i) + "].type").c_str()),
-                    1,
-                    &light->type);
+                m_shaderProgram->setFloats(("u_lightInfos[" + std::to_string(i) + "].position").c_str(),
+                    lightTransform ? reinterpret_cast<float*>(&lightTransform->translation) : emptyvec, 3);
+                m_shaderProgram->setFloats(("u_lightInfos[" + std::to_string(i) + "].direction").c_str(),
+                    lightTransform ? reinterpret_cast<float*>(&lightTransform->rotation) : emptyvec, 3);
+                m_shaderProgram->setFloats(("u_lightInfos[" + std::to_string(i) + "].colour").c_str(),
+                    reinterpret_cast<float*>(&light->colour), 3);
+                m_shaderProgram->setFloat(("u_lightInfos[" + std::to_string(i) + "].intensity").c_str(),
+                    light->intensity);
+                m_shaderProgram->setInt(("u_lightInfos[" + std::to_string(i) + "].type").c_str(),
+                    light->type);
                 
                 i++;
                 if (i == MAX_DRAW_LIGHTS) break;
             }
 
+            m_shaderProgram->use();
+
             // Set the PVMatrix as a uniform which can be accessed in the shader by declaring
             // a mat4 uniform named u_PVMatrix.
-            glUniformMatrix4fv(
-                glGetUniformLocation(m_shaderProgram->getID(), "u_PVMatrix"),
-                1,
-                GL_FALSE,
-                glm::value_ptr(PVMatrix));
-
-            glUniformMatrix4fv(
-                glGetUniformLocation(m_shaderProgram->getID(), "u_modelMatrix"),
-                1,
-                GL_FALSE,
-                glm::value_ptr(modelMatrix));
-
+            m_shaderProgram->setMat4("u_PVMatrix", glm::value_ptr(PVMatrix));
+            m_shaderProgram->setMat4("u_modelMatrix", glm::value_ptr(modelMatrix));
             
             model->model.draw();
-            }
+        }
         
     }
 
