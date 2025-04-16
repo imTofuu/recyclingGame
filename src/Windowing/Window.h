@@ -17,6 +17,7 @@ namespace RecyclingGame {
         void update();
 
         void handleKeyChange(Key key, int action);
+        void updateSize();
         
         [[nodiscard]] bool isOpen() const { return !glfwWindowShouldClose(m_window); }
         [[nodiscard]] double getDT() const { return m_dt; }

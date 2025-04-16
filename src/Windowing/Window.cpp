@@ -6,6 +6,10 @@
 
 namespace RecyclingGame {
 
+    void windowResized(GLFWwindow* window, int width, int height) {
+        static_cast<Window*>(glfwGetWindowUserPointer(window))->updateSize();
+    }
+
     static void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods) {
         auto* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
         instance->handleKeyChange(static_cast<Key>(key), action);
@@ -26,10 +30,14 @@ namespace RecyclingGame {
         glfwSetWindowUserPointer(m_window, this);
 
         glfwSetKeyCallback(m_window, keyChanged);
+
+        glfwSetWindowSizeCallback(m_window, windowResized);
     }
 
     void Window::init() {
         m_renderer.init();
+
+        updateSize();
     }
 
     // Free memory associated with the window and destroy the GL context
@@ -61,6 +69,11 @@ namespace RecyclingGame {
         }
     }
 
+    void Window::updateSize() {
+        int width, height;
+        glfwGetFramebufferSize(m_window, &width, &height);
+        m_renderer.resize(width, height);
+    }
 
     unsigned int Window::getWidth() const {
         int width = 0;

@@ -11,8 +11,11 @@
 #include "Components/LightComponent.h"
 #include "Components/TransformComponent.h"
 #include "Components/ModelComponent.h"
+#include "Graphics/Framebuffer.h"
 
 namespace RecyclingGame {
+
+    Model screenViewportModel;
 
     void Renderer::init() {
         
@@ -29,16 +32,38 @@ namespace RecyclingGame {
 
         // Enable depth testing to prevent overwriting fragments that are closer to the camera.
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
         Logger::checkForGlError("Enabling depth testing");
 
-        // Create and compile the shaders
-        m_vertShader = new Shader("./assets/Shaders/main.vert", Shader::ShaderType::VERT);
-        m_fragShader = new Shader("./assets/Shaders/main.frag", Shader::ShaderType::FRAG);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        Logger::checkForGlError("Enabling blending");
 
-        m_lightVertShader = new Shader("./assets/Shaders/lightmain.vert", Shader::ShaderType::VERT);
-        m_lightFragShader = new Shader("./assets/Shaders/lightmain.frag", Shader::ShaderType::FRAG);
+        // Create the framebuffers that will be used for the passes
+        Window* window = Game::getInstance()->getWindow();
+
+        m_mainColourTexture = new Texture(nullptr, window->getWidth(), window->getHeight());
+        m_mainDepthTexture = new Texture(nullptr, window->getWidth(), window->getHeight(), TextureType::DEPTH);
+        
+        m_mainFramebuffer = new Framebuffer();
+        m_mainFramebuffer->attachColourAttachment(*m_mainColourTexture);
+        m_mainFramebuffer->attachDepthAttachment(*m_mainDepthTexture);
+
+        // Create and compile the shaders
+        m_defaultFinalPassVert = new Shader("./assets/Shaders/FinalPass.vert", Shader::ShaderType::VERT);
+        m_defaultFinalPassFrag = new Shader("./assets/Shaders/FinalPass.frag", Shader::ShaderType::FRAG);
+        
+        m_vertShader = new Shader("./assets/Shaders/DrawObject.vert", Shader::ShaderType::VERT);
+        m_fragShader = new Shader("./assets/Shaders/DrawObject.frag", Shader::ShaderType::FRAG);
+
+        m_lightVertShader = new Shader("./assets/Shaders/DebugLight.vert", Shader::ShaderType::VERT);
+        m_lightFragShader = new Shader("./assets/Shaders/DebugLight.frag", Shader::ShaderType::FRAG);
 
         // Attach the shaders to a shader program so they can be used
+        m_defaultFinalPassShaderProgram = new ShaderProgram();
+        m_defaultFinalPassShaderProgram->addShader(*m_defaultFinalPassVert);
+        m_defaultFinalPassShaderProgram->addShader(*m_defaultFinalPassFrag);
+        
         m_shaderProgram = new ShaderProgram();
         m_shaderProgram->addShader(*m_vertShader);
         m_shaderProgram->addShader(*m_fragShader);
@@ -46,6 +71,9 @@ namespace RecyclingGame {
         m_lightShaderProgram = new ShaderProgram();
         m_lightShaderProgram->addShader(*m_lightVertShader);
         m_lightShaderProgram->addShader(*m_lightFragShader);
+
+        // Load models
+        screenViewportModel = AssetFetcher::modelFromPath("./assets/screen.obj");
 
         // Create test lights
 
@@ -59,24 +87,6 @@ namespace RecyclingGame {
         TransformComponent* transformComponent1 = scene.addComponentToEntity<TransformComponent>(lightEntity1);
         transformComponent1->scale = Vector3(0.5f);
 
-        BOO::EntityID lightEntity2 = scene.createEntity();
-        LightComponent* light2Component = scene.addComponentToEntity<LightComponent>(lightEntity2);
-        light2Component->colour = Vector3(1, 0, 0);
-        light2Component->type = 1; // Point light
-
-        TransformComponent* transformComponent2 = scene.addComponentToEntity<TransformComponent>(lightEntity2);
-        transformComponent2->scale = Vector3(0.5f);
-
-        BOO::EntityID lightEntity3 = scene.createEntity();
-        LightComponent* light3Component = scene.addComponentToEntity<LightComponent>(lightEntity3);
-        light3Component->colour = Vector3(0, 1, 0);
-        light3Component->type = 1; // Point light
-
-        TransformComponent* transformComponent3 = scene.addComponentToEntity<TransformComponent>(lightEntity3);
-        transformComponent3->scale = Vector3(0.5f);
-        
-        m_shaderProgram->use();
-
         m_shaderProgram->setFloat("u_ambientStrength", m_ambientStrength);
         m_shaderProgram->setFloats("u_ambientColour", reinterpret_cast<float*>(&m_ambientColor), 3);
         
@@ -87,7 +97,11 @@ namespace RecyclingGame {
         // Clear the back buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto camera = Game::getInstance()->getCamera();
+        // Clear the main buffer
+        m_mainFramebuffer->bind();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto camera = Game::getInstance()->getMainCamera();
         auto& scene = Game::getInstance()->getScene();
 
         // Get the matrices associated with the camera. One of these is the projection matrix, which
@@ -161,7 +175,23 @@ namespace RecyclingGame {
             
             model->model.draw();
         }
+
+        // Return to drawing to the screen
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Render the passed image
+        m_defaultFinalPassShaderProgram->use();
         
+        screenViewportModel.setTexture(0, *m_mainColourTexture);
+
+        screenViewportModel.draw();
+        
+    }
+    
+    void Renderer::resize(int width, int height) {
+        glViewport(0, 0, width, height);
+        m_mainColourTexture->setData(nullptr, width, height, TextureType::COLOUR);
+        m_mainDepthTexture->setData(nullptr, width, height, TextureType::DEPTH);
     }
 
     

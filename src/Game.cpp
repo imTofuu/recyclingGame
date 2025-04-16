@@ -41,8 +41,6 @@ namespace RecyclingGame {
         // give it the GLFW loader.
         gladLoadGL(glfwGetProcAddress);
 
-        window.init();
-
         // ReSharper disable once CppDFALocalValueEscapesFunction
         // m_window does not need to be a heap allocated object
         // since it will not be needed after the init function
@@ -50,14 +48,16 @@ namespace RecyclingGame {
         // leak)
         m_window = &window;
 
+        window.init();
+
         // Initialise the light model since Model uses functions in its constructor
         // that require glad to be initialised.
         AssetFetcher::m_lightModel = new Model(AssetFetcher::modelFromPath("./assets/cube.obj"));
 
         // Add a CameraComponent to the camera entity so the entity can actually
         // be used as a camera.
-        m_scene.addComponentToEntity<CameraComponent>(m_cameraEntity);
-        TransformComponent* cameraTransform = m_scene.addComponentToEntity<TransformComponent>(m_cameraEntity);
+        m_scene.addComponentToEntity<CameraComponent>(m_mainCameraEntity);
+        TransformComponent* cameraTransform = m_scene.addComponentToEntity<TransformComponent>(m_mainCameraEntity);
         cameraTransform->translation = Vector3(0.0f, 0.0f, 10.0f);
         cameraTransform->rotation = Vector3(-10.0f, 0.0f, 0.0f);
 
@@ -70,7 +70,7 @@ namespace RecyclingGame {
 
         // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
         // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
         
         // This is the main loop of the game.
         while (window.isOpen()) {

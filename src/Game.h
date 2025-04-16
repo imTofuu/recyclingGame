@@ -27,7 +27,8 @@ namespace RecyclingGame {
         BOO::Registry& getScene() { return m_scene; }
         Window* getWindow() { return m_window; }
 
-        BOO::ComponentRef<CameraComponent> getCamera() { return m_scene.getComponentFromEntity<CameraComponent>(m_cameraEntity); }
+        BOO::ComponentRef<CameraComponent> getMainCamera()
+            { return m_scene.getComponentFromEntity<CameraComponent>(m_mainCameraEntity); }
 
     private:
 
@@ -36,7 +37,7 @@ namespace RecyclingGame {
         BOO::Registry m_scene;
         Window* m_window = nullptr;
 
-        BOO::EntityID m_cameraEntity = m_scene.createEntity();
+        BOO::EntityID m_mainCameraEntity = m_scene.createEntity();
         
     };
     
