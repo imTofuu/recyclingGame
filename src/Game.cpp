@@ -58,7 +58,7 @@ namespace RecyclingGame {
         // be used as a camera.
         m_scene.addComponentToEntity<CameraComponent>(m_mainCameraEntity);
         TransformComponent* cameraTransform = m_scene.addComponentToEntity<TransformComponent>(m_mainCameraEntity);
-        cameraTransform->translation = Vector3(0.0f, 0.0f, 10.0f);
+        cameraTransform->translation = Vector3(0.0f, 0.0f, -10.0f);
         cameraTransform->rotation = Vector3(-10.0f, 0.0f, 0.0f);
 
         BOO::EntityID testEntity = m_scene.createEntity();
@@ -67,6 +67,9 @@ namespace RecyclingGame {
 
         testModel->model = AssetFetcher::modelFromPath("./assets/Suzanne.obj");
         testModel->model.setTexture(0, AssetFetcher::textureFromFile("./assets/white.png"));
+
+        testModel->material.shininess = 64.0f;
+        testModel->material.diffuseColour = Vector3(1.0f, 0.0f, 1.0f);
 
         // Disable vsync on the window so GLFW doesn't wait until the GPU is ready to swap buffers. This will require
         // a delta time to be used on physics and animations so the speed doesn't depend on the frame rate.

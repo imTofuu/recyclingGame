@@ -19,7 +19,7 @@ namespace RecyclingGame {
                     glm::radians(-rotation.y),
                     glm::radians(-rotation.z)
                     )));
-        model = glm::translate(model, glm::vec3(-translation.x, -translation.y, -translation.z));
+        model = glm::translate(model, glm::vec3(translation.x, translation.y, translation.z));
         model *= rot;
         model = glm::scale(model, glm::vec3(scale.x, scale.y, scale.z));
         return model;

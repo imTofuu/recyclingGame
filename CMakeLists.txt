@@ -48,6 +48,7 @@ add_executable(recyclingGame
         src/KeyListener.cpp
         src/Graphics/Framebuffer.h
         src/Graphics/Framebuffer.cpp
+        src/Graphics/Material.h
 )
 
 add_compile_definitions(MAX_DRAW_LIGHTS=16)

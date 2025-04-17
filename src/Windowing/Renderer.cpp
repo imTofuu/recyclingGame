@@ -81,14 +81,15 @@ namespace RecyclingGame {
         
         BOO::EntityID lightEntity1 = scene.createEntity();
         LightComponent* light1Component = scene.addComponentToEntity<LightComponent>(lightEntity1);
-        light1Component->colour = Vector3(0, 0, 1);
+        light1Component->colour = Vector3(1, 1, 1);
+        light1Component->dist = 20.0f;
         light1Component->type = 1; // Point light
+        light1Component->intensity = 1.0f;
 
         TransformComponent* transformComponent1 = scene.addComponentToEntity<TransformComponent>(lightEntity1);
         transformComponent1->scale = Vector3(0.5f);
 
         m_shaderProgram->setFloat("u_ambientStrength", m_ambientStrength);
-        m_shaderProgram->setFloats("u_ambientColour", reinterpret_cast<float*>(&m_ambientColor), 3);
         
     }
 
@@ -101,16 +102,18 @@ namespace RecyclingGame {
         m_mainFramebuffer->bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto camera = Game::getInstance()->getMainCamera();
         auto& scene = Game::getInstance()->getScene();
+
+        auto camera = Game::getInstance()->getMainCamera();
+        auto cameraTransform = scene.getComponentFromEntity<TransformComponent>(camera.getEntity());
 
         // Get the matrices associated with the camera. One of these is the projection matrix, which
         // can either be orthographic, where an object is always the same size regardless of distance
         // from the camera, or it can be perspective, where an object is smaller the further away it is.
         // It also has a view matrix which is similar to a model matrix but for the camera.
         auto projectionMatrix = camera->getProjectionMatrix();
-        auto viewMatrix = scene.entityHasComponent<TransformComponent>(camera.getEntity()) ? 
-            scene.getComponentFromEntity<TransformComponent>(camera.getEntity())->getTransformationMatrix() :
+        auto viewMatrix = cameraTransform ? 
+            cameraTransform->getTransformationMatrix() :
             glm::mat4(1.0f);
 
         // Pre-multiply the camera matrices so it doesn't have to be done for every object.
@@ -135,8 +138,8 @@ namespace RecyclingGame {
                 float emptyvec[] = {0, 0, 0};
 
                 if (lightTransform) {
-                    lightTransform->translation.x = cos(glfwGetTime() + (2 * i * 3.14 / 3)) * 3.0f;
-                    lightTransform->translation.z = sin(glfwGetTime() + (2 * i * 3.14 / 3)) * 3.0f;
+                    lightTransform->translation.x = cos(glfwGetTime() + (2 * i * 3.14 / 3)) * 5.0f;
+                    lightTransform->translation.z = sin(glfwGetTime() + (2 * i * 3.14 / 3)) * 5.0f;
                 }
 
                 auto lightModelMatrix = lightTransform ? lightTransform->getTransformationMatrix() : glm::mat4(1.0f);
@@ -159,6 +162,12 @@ namespace RecyclingGame {
                     reinterpret_cast<float*>(&light->colour), 3);
                 m_shaderProgram->setFloat(("u_lightInfos[" + std::to_string(i) + "].intensity").c_str(),
                     light->intensity);
+                m_shaderProgram->setFloat(("u_lightInfos[" + std::to_string(i) + "].dist").c_str(),
+                    light->dist);
+                m_shaderProgram->setFloat(("u_lightInfos[" + std::to_string(i) + "].cutOff").c_str(),
+                    glm::cos(glm::radians(light->cutoff)));
+                m_shaderProgram->setFloat(("u_lightInfos[" + std::to_string(i) + "].cutOffMargin").c_str(),
+                    glm::cos(glm::radians(light->cutoffMargin)));
                 m_shaderProgram->setInt(("u_lightInfos[" + std::to_string(i) + "].type").c_str(),
                     light->type);
                 
@@ -168,10 +177,17 @@ namespace RecyclingGame {
 
             m_shaderProgram->use();
 
+            m_shaderProgram->setFloats("u_viewPosition", reinterpret_cast<float*>(&cameraTransform->translation), 3);
+
             // Set the PVMatrix as a uniform which can be accessed in the shader by declaring
             // a mat4 uniform named u_PVMatrix.
             m_shaderProgram->setMat4("u_PVMatrix", glm::value_ptr(PVMatrix));
             m_shaderProgram->setMat4("u_modelMatrix", glm::value_ptr(modelMatrix));
+
+            m_shaderProgram->setFloats("u_material.ambient", reinterpret_cast<float*>(&model->material.ambientColour), 3);
+            m_shaderProgram->setFloats("u_material.diffuse", reinterpret_cast<float*>(&model->material.diffuseColour), 3);
+            m_shaderProgram->setFloats("u_material.specular", reinterpret_cast<float*>(&model->material.specularColour), 3);
+            m_shaderProgram->setFloat("u_material.shininess", model->material.shininess);
             
             model->model.draw();
         }

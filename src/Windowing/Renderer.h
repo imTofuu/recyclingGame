@@ -17,7 +17,6 @@ namespace RecyclingGame {
         void resize(int width, int height);
 
         void setAmbientStrength(float strength) { m_ambientStrength = strength; }
-        void setAmbientColour(const Vector3& color) { m_ambientColor = color; }
 
     private:
 
@@ -34,7 +33,6 @@ namespace RecyclingGame {
         ShaderProgram* m_lightShaderProgram = nullptr;
 
         float m_ambientStrength = 0.1f;
-        Vector3 m_ambientColor = Vector3(1.0f, 1.0f, 1.0f);
         
     };
     
